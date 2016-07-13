@@ -7,10 +7,15 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'TrueBV\\' => array($vendorDir . '/true/punycode/src'),
+    'Symfony\\Component\\OptionsResolver\\' => array($vendorDir . '/symfony/options-resolver'),
+    'React\\Promise\\' => array($vendorDir . '/react/promise/src'),
     'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
     'OAuth\\' => array($vendorDir . '/and/oauth/src'),
     'NukeViet\\' => array($vendorDir . '/vinades/nukeviet'),
     'League\\Url\\' => array($vendorDir . '/league/url/src'),
+    'GuzzleHttp\\Stream\\' => array($vendorDir . '/guzzlehttp/streams/src'),
+    'GuzzleHttp\\Ring\\' => array($vendorDir . '/guzzlehttp/ringphp/src'),
     'Gregwar\\Captcha\\' => array($vendorDir . '/gregwar/captcha'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qrcode/src'),
+    'Elasticsearch\\' => array($vendorDir . '/elasticsearch/elasticsearch/src/Elasticsearch'),
 );
