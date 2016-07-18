@@ -11,21 +11,26 @@
 if (! defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
+  /*kết nối host*/
+	$hosts = array( $db_config['elas_host'] . ':' . $db_config['elas_port'] );
+	$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
+	/*----------------end----------*/
+
 
 if ($nv_Request->isset_request('get_topic_json', 'post, get')) {
     $q = $nv_Request->get_title('q', 'post, get', '');
-    
+
     $db->sqlreset()
         ->select('topicid, title')
         ->from(NV_PREFIXLANG . '_' . $module_data . '_topics')
         ->where('title LIKE :q_title')
         ->order('weight ASC')
         ->limit(20);
-    
+
     $sth = $db->prepare($db->sql());
     $sth->bindValue(':q_title', '%' . $q . '%', PDO::PARAM_STR);
     $sth->execute();
-    
+
     $array_data = array();
     while (list ($topicid, $title) = $sth->fetch(3)) {
         $array_data[] = array(
@@ -33,10 +38,10 @@ if ($nv_Request->isset_request('get_topic_json', 'post, get')) {
             'title' => $title
         );
     }
-    
+
     header('Cache-Control: no-cache, must-revalidate');
     header('Content-type: application/json');
-    
+
     ob_start('ob_gzhandler');
     echo json_encode($array_data);
     exit();
@@ -568,6 +573,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 
             $rowcontent['id'] = $db->insert_id($sql, 'id', $data_insert);
             if ($rowcontent['id'] > 0) {
+
                 nv_insert_logs(NV_LANG_DATA, $module_name, $lang_module['content_add'], $rowcontent['title'], $admin_info['userid']);
                 $ct_query = array();
 
@@ -594,6 +600,25 @@ if ($nv_Request->get_int('save', 'post') == 1) {
                     $error[] = $lang_module['errorsave'];
                 }
                 unset($ct_query);
+
+				//khi ton tai rowcontent id thi moi them vao Thêm vào elasticsearch
+
+				/*Thêm vào elasticsearch */
+				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
+				$rowcontent = array_merge($rowcontent, $body_contents);
+				$module_data = 'news';
+				$params = [
+				'index' => 'nukeviet4_demo',
+				'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
+				'id' =>0,
+				'body' => []
+				];
+				//Index a document: Thêm mới 1 row
+				$params['id'] = $rowcontent['id'];//gán id=id của rowcontent khi vừa thêm
+				$params['body'] = $rowcontent;//gán body=body của rowcontent
+				$response = $client->index($params);
+
+				/*------------------end-----------------*/
             } else {
                 $error[] = $lang_module['errorsave'];
             }
@@ -678,18 +703,33 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				        $ct_query[] = $db->exec('INSERT INTO ' . NV_PREFIXLANG . '_' . $module_data . '_' . $catid . ' SELECT * FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows WHERE id=' . $rowcontent['id']);
 				    }
 				}
-
                 if (array_sum($ct_query) != sizeof($ct_query)) {
                     $error[] = $lang_module['errorsave'];
                 }
-            } else {
-                $error[] = $lang_module['errorsave'];
-            }
-        }
+				//Sua trong elasticsearch
 
-        nv_set_status_module();
-        if (empty($error)) {
-            $id_block_content_new = $rowcontent['mode'] == 'edit' ? array_diff($id_block_content_post, $id_block_content) : $id_block_content_post;
+				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
+        		$rowcontent = array_merge($rowcontent, $body_contents);
+				$module_data = 'news';
+				$params = array( );
+				$params['index'] = 'nukeviet4_demo';
+				$params['type'] = NV_PREFIXLANG . '_' . $module_data . '_rows';
+				$params['id'] = $rowcontent['id'];//gan id= id cua rowcontent
+				$params['body']['doc'] = $rowcontent;//gan body=body cua rowcontent phai để dạng này $params['body']['doc'] nó mới cho update
+				$result_search = $client->update( $params );
+
+			/*------------------------------------------end--------------------------*/
+            	//die('test');
+
+            } else {
+                $error[] = $lang_module['errorsave' ];
+				}
+				}
+
+				nv_set_status_module();
+				if (empty($error)) {
+				$id_block_content_new = $rowcontent[
+			'mode'] == 'edit' ? array_diff($id_block_content_post, $id_block_content) : $id_block_content_post;
             $id_block_content_del = $rowcontent['mode'] == 'edit' ? array_diff($id_block_content, $id_block_content_post) : array();
 
             $array_block_fix = array();
@@ -781,6 +821,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
                 redriect($msg1, $msg2, $url, $module_data . '_detail');
             }
         }
+
     } else {
         $url = 'javascript: history.go(-1)';
         $msg1 = implode('<br />', $error);
@@ -808,10 +849,10 @@ if(!empty($rowcontent['topicid'])){
     ->from(NV_PREFIXLANG . '_' . $module_data . '_topics')
     ->where('topicid=' . $rowcontent['topicid']);
     $result = $db->query($db->sql());
-    
+
     while (list($topicid_i, $title_i) = $result->fetch(3)) {
         $array_topic_module[$topicid_i] = $title_i;
-    }   
+    }
 }
 
 $sql = 'SELECT sourceid, title FROM ' . NV_PREFIXLANG . '_' . $module_data . '_sources ORDER BY weight ASC';
@@ -1058,6 +1099,7 @@ $contents .= $xtpl->text('main');
 if ($rowcontent['id'] > 0) {
     $op = '';
 }
+
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_admin_theme($contents);
 include NV_ROOTDIR . '/includes/footer.php';

@@ -11,6 +11,12 @@
 if (! defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
+$hosts = [
+    '10.0.0.124:9200'
+];
+$client = Elasticsearch\ClientBuilder::create()->setHosts($hosts)
+    ->setRetries(0)
+    ->build();
 
 $id = $nv_Request->get_int('id', 'post', 0);
 $checkss = $nv_Request->get_string('checkss', 'post', '');
@@ -54,18 +60,29 @@ if (! empty($del_array)) {
                 $check_permission = true;
             }
         }
-
+		/*Xóa dữ liệu tin tức*/
         if ($check_permission > 0) {
-            $contents = nv_del_content_module($id);
+           $contents = nv_del_content_module($id);
             $artitle[] = $title;
             $del_array[] = $id;
-        } else {
-            $no_del_array[] = $id;
-        }
-    }
-    $count = sizeof($del_array);
-    if ($count) {
-        nv_insert_logs(NV_LANG_DATA, $module_name, $lang_module['permissions_del_content'], implode(', ', $artitle), $admin_info['userid']);
+			$module_data = 'news';
+			/*Xóa dữ liệu trong elasticsearch*/
+			$params = [
+			'index' => 'nukeviet4_demo',
+			'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
+			'id' => $id,
+				];
+				/*Xóa dữ liệu*/
+				$response = $client->delete($params);
+
+				} else {
+				$no_del_array[] = $id;
+				}
+				}
+				$count = sizeof($del_array);
+				if ($count) {
+				nv_insert_logs(NV_LANG_DATA, $module_name, $lang_module[
+			'permissions_del_content'], implode(', ', $artitle), $admin_info['userid']);
     }
     if (! empty($no_del_array)) {
         $contents = 'ERR_' . $lang_module['error_no_del_content_id'] . ': ' . implode(', ', $no_del_array);

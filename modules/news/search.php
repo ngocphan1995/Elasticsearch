@@ -45,5 +45,7 @@ if ($num_items) {
             'title' => BoldKeywordInStr($tilterow, $key, $logic),
             'content' => BoldKeywordInStr($content, $key, $logic)
         );
+		//print_r($link);
+//die('pass');
     }
 }

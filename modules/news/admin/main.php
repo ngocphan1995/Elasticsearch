@@ -12,6 +12,7 @@ if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
 
+
 $page_title = $lang_module['content_list'];
 $stype = $nv_Request->get_string('stype', 'get', '-');
 $sstatus = $nv_Request->get_int('sstatus', 'get', -1);

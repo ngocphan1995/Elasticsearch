@@ -5,7 +5,7 @@
  * @Author VINADES.,JSC (contact@vinades.vn)
  * @Copyright (C) 2016 VINADES.,JSC. All rights reserved
  * @License GNU/GPL version 2 or any later version
- * @Createdate Wed, 13 Jul 2016 02:23:21 GMT
+ * @Createdate Fri, 15 Jul 2016 09:14:51 GMT
  */
 
 if ( ! defined( 'NV_MAINFILE' ) ) die( 'Stop!!!' );
@@ -31,7 +31,7 @@ define('NV_UNICKMIN', 4);
 define('NV_UPASSMAX', 20);
 define('NV_UPASSMIN', 8);
 define('NV_EOL', "\r\n");
-define('NV_UPLOAD_MAX_FILESIZE', 41943040);
+define('NV_UPLOAD_MAX_FILESIZE', 2097152);
 $global_config['admfirewall']=0;
 $global_config['admin_check_pass_time']=1800;
 $global_config['allow_sitelangs']=array('vi');
@@ -80,7 +80,7 @@ $global_config['lang_geo']=0;
 $global_config['lang_multi']=0;
 $global_config['max_requests_300']=150;
 $global_config['max_requests_60']=40;
-$global_config['my_domains']='localhost';
+$global_config['my_domains']='localhost,test.net';
 $global_config['notification_active']=1;
 $global_config['notification_autodel']=15;
 $global_config['nv_auto_resize']=1;
@@ -104,7 +104,7 @@ $global_config['site_timezone']='byCountry';
 $global_config['spadmin_add_admin']=1;
 $global_config['ssl_https']=0;
 $global_config['str_referer_blocker']=0;
-$global_config['timestamp']=1;
+$global_config['timestamp']=6;
 $global_config['upload_alt_require']=1;
 $global_config['upload_auto_alt']=1;
 $global_config['upload_checking_mode']='mild';
@@ -128,5 +128,5 @@ $nv_parse_ini_timezone=array('Pacific/Midway'=>array('winter_offset'=>'-39600', 
 
 $nv_plugin_area=array(1=>array(0=>'qrcode.php'));
 
-$rewrite_keys=array(0=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=page\\&[amp;]*op=([a-zA-Z0-9-]+)\\.html"#', 1=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*q\\=([^"]+)"#', 2=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=search\\&[amp;]*q\\=([^"]+)"#', 3=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=tag/([^"]+)"#', 4=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=([a-zA-Z0-9-/]+)\\.html"#', 5=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=([a-zA-Z0-9-/]+)"#', 6=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news/([a-zA-Z0-9-/]+)"#', 7=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news"#', 8=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=seek\\&[amp;]*q\\=([^"]+)"#', 9=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=search\\&[amp;]*q\\=([^"]+)"#', 10=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=tag/([^"]+)"#', 11=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=([a-zA-Z0-9-/]+)\\.html"#', 12=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=([a-zA-Z0-9-/]+)"#', 13=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-/]+)"#', 14=>'#"(/elasticsearch/)index.php\\?language=([a-z-]+)"#');
+$rewrite_keys=array(0=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=page\\&[amp;]*op=([a-zA-Z0-9-]+)\\.html"#', 1=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*q\\=([^"]+)"#', 2=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=search\\&[amp;]*q\\=([^"]+)"#', 3=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=tag/([^"]+)"#', 4=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=([a-zA-Z0-9-/]+)\\.html"#', 5=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news\\&[amp;]*op=([a-zA-Z0-9-/]+)"#', 6=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news/([a-zA-Z0-9-/]+)"#', 7=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=news"#', 8=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=seek\\&[amp;]*q\\=([^"]+)"#', 9=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=search\\&[amp;]*q\\=([^"]+)"#', 10=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=tag/([^"]+)"#', 11=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=([a-zA-Z0-9-/]+)\\.html"#', 12=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-]+)\\&[amp;]*op=([a-zA-Z0-9-/]+)"#', 13=>'#"(/)index.php\\?language=([a-z-]+)\\&[amp;]*nv=([a-zA-Z0-9-/]+)"#', 14=>'#"(/)index.php\\?language=([a-z-]+)"#');
 $rewrite_values=array(0=>'"\\1\\3.html"', 1=>'"\\1q=\\3"', 2=>'"\\1search/q=\\3"', 3=>'"\\1tag/\\3"', 4=>'"\\1\\3.html"', 5=>'"\\1\\3/"', 6=>'"\\1\\3/"', 7=>'"\\1"', 8=>'"\\1seek/q=\\3"', 9=>'"\\1\\3/search/q=\\4"', 10=>'"\\1\\3/tag/\\4"', 11=>'"\\1\\3/\\4.html"', 12=>'"\\1\\3/\\4/"', 13=>'"\\1\\3/"', 14=>'"\\1"');

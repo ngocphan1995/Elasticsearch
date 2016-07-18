@@ -25,6 +25,10 @@ $db_config['charset'] = 'utf8mb4';
 $db_config['persistent'] = false;
 $db_config['prefix'] = 'nv4';
 
+//Cấu hình host elasticsearch
+$db_config['elas_host'] = '10.0.0.124';
+$db_config['elas_port'] = '9200';
+
 $global_config['site_domain'] = '';
 $global_config['name_show'] = 0;
 $global_config['idsite'] = 0;

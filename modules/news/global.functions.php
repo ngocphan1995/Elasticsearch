@@ -108,9 +108,11 @@ function nv_del_content_module($id)
         }
 
         $_sql = 'DELETE FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows WHERE id=' . $id;
+
         if (! $db->exec($_sql)) {
             ++$number_no_del;
         }
+
 
         $_sql = 'DELETE FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail WHERE id = ' . $id;
         if (! $db->exec($_sql)) {

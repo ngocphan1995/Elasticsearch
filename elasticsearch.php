@@ -15,7 +15,6 @@ define('NV_SYSTEM', true);
 define('NV_ROOTDIR', pathinfo(str_replace(DIRECTORY_SEPARATOR, '/', __file__), PATHINFO_DIRNAME));
 
 require NV_ROOTDIR . '/includes/mainfile.php';
-
 $hosts = [
     '10.0.0.124:9200'
 ];
@@ -28,66 +27,71 @@ $client = Elasticsearch\ClientBuilder::create()->setHosts($hosts)
 $module_data = 'news';
 
 $params = [
-    'index' => 'nukeviet4',
+    'index' => 'nukeviet4_demo',
     'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
-    'id' => 0,
-    'body' => []
+    'id' => 43,
 ];
 echo '<pre>';
-/*
-//Index a document: Thêm mới 1 row
-$db_slave->sqlreset()
-    ->select('*')
-    ->from(NV_PREFIXLANG . '_' . $module_data . '_rows')
-    ->where('status=1 AND inhome=1')
-    ->order('publtime DESC');
-
-$result = $db_slave->query($db_slave->sql());
-while ($row = $result->fetch()) {
-    $params['id'] = $row['id'];
-    $params['body'] = $row;
-    $response = $client->index($params);
-    if ($response['created']) {
-        print_r($response);
-    }
-}
-
-
-//Get a document: : Lấy dữ liệu 1 row
-$params = [
-    'index' => 'nukeviet4',
-    'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
-    'id' => 8
-];
-try {
-    $response = $client->get($params);
-    $row = $response['_source'];
-    print_r($row);
-} catch (Exception $e) {
-    $row = [];
-}
-*/
+/*Xóa dữ liệu*/
+/*$response = $client->delete($params);
+print_r($response);die('pass');
 
 //Search for a document
 //http://www.sitepoint.com/introduction-to-elasticsearch-in-php/
 echo 'Search for a document: ';
 $params = array();
-$params['index'] = 'nukeviet4';
+$params['index'] = 'mangvn_com';
 $params['type'] = NV_PREFIXLANG . '_' . $module_data . '_rows';
 // Tìm kiếm có 1 trong các từ.
 //$params['body']['query']['match']['title'] ='NukeViet tuyển dụng';
 
-
+/*
 // Tìm kiếm có tất cả các từ
-$params['body']['query']['multi_match']['query'] = 'NukeViet nguồn mở';
+$params['body']['query']['multi_match']['query'] = 'thực tập';
 $params['body']['query']['multi_match']['operator'] ='and';
 $params['body']['query']['multi_match']['fields'] = [
     "title",
-    "hometext"
+    "hometext", "bodyhtml"
+];
+
+
+$response = $client->search($params);
+print_r($response);*/
+
+$params = [
+    'index' => 'nukeviet4_demo',
+    'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
+    'body' => [
+        /*'query' => [
+            'match' => [
+                'title' => 'thực tập',
+               // 'id'=>14
+            ]
+        ]*/
+        'query'=>[
+        "bool"=> [
+        "should"=> [
+              "multi_match" => [
+                "query"=> ['2015 - 2016'],
+                "type"=> ["cross_fields"],
+                "fields"=> [ "title",
+    						"hometext",],
+                "minimum_should_match"=> ["50%"]
+              ]
+            ],
+          "must"=> [
+            //"term" => [ "id" =>17],
+            "range"=> [ "publtime" =>["lt"=>1453192440]]
+        ],
+        ]
+    ]
+    ]
 ];
 
 $response = $client->search($params);
 print_r($response);
-echo '</pre>';
 
-die('Xong');
+
+echo '</pre>';
+$t=number_format((microtime(true) - NV_START_TIME), 3, '.', '');
+die('tiem='.$t);
