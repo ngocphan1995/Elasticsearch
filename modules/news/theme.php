@@ -342,12 +342,12 @@ function viewcat_top($array_catcontent, $generate_page)
 function viewsubcat_main($viewcat, $array_cat)
 {
     global $module_name, $module_file, $site_mods, $global_array_cat, $lang_module, $module_config, $module_info;
-	
+
     $xtpl = new XTemplate($viewcat . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_file);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('TOOLTIP_POSITION', $module_config[$module_name]['tooltip_position']);
     $xtpl->assign('IMGWIDTH', $module_config[$module_name]['homewidth']);
-    
+
     // Hien thi cac chu de con
     foreach ($array_cat as $key => $array_row_i) {
         if (isset($array_cat[$key]['content'])) {
@@ -471,7 +471,7 @@ function viewcat_two_column($array_content, $array_catpage)
     $xtpl = new XTemplate('viewcat_two_column.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_file);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('IMGWIDTH0', $module_config[$module_name]['homewidth']);
-    
+
     if ($catid and (($global_array_cat[$catid]['viewdescription'] and $page == 1) or $global_array_cat[$catid]['viewdescription'] == 2)) {
         $xtpl->assign('CONTENT', $global_array_cat[$catid]);
         if ($global_array_cat[$catid]['image']) {
@@ -611,7 +611,7 @@ function detail_theme($news_contents, $array_keyword, $related_new_array, $relat
     $xtpl->assign('TEMPLATE', $global_config['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('TOOLTIP_POSITION', $module_config[$module_name]['tooltip_position']);
-    
+
     $news_contents['addtime'] = nv_date('d/m/Y h:i:s', $news_contents['addtime']);
 
     $xtpl->assign('NEWSID', $news_contents['id']);
@@ -1004,7 +1004,7 @@ function search_result_theme($key, $numRecord, $per_pages, $page, $array_content
             $xtpl->assign('TIME', date('d/m/Y h:i:s A', $value['publtime']));
             $xtpl->assign('AUTHOR', BoldKeywordInStr($value['author'], $key));
             $xtpl->assign('SOURCE', BoldKeywordInStr(GetSourceNews($value['sourceid']), $key));
-
+//print_r($value['homeimgfile']);echo"<br/>";
             if (! empty($value['homeimgfile'])) {
                 $xtpl->assign('IMG_SRC', $value['homeimgfile']);
                 $xtpl->parse('results.result.result_img');
@@ -1013,6 +1013,7 @@ function search_result_theme($key, $numRecord, $per_pages, $page, $array_content
             $xtpl->parse('results.result');
         }
     }
+
 
     if ($numRecord == 0) {
         $xtpl->assign('KEY', $key);

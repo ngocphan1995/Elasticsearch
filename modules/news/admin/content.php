@@ -707,7 +707,6 @@ if ($nv_Request->get_int('save', 'post') == 1) {
                     $error[] = $lang_module['errorsave'];
                 }
 				//Sua trong elasticsearch
-
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
         		$rowcontent = array_merge($rowcontent, $body_contents);
 				$module_data = 'news';

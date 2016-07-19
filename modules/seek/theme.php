@@ -95,6 +95,7 @@ function urlencode_rfc_3986($string)
  */
 function search_result_theme($result_array, $mod, $mod_custom_title, $search, $is_generate_page, $limit, $num_items)
 {
+
     global $module_info, $module_file, $global_config, $lang_global, $lang_module, $db, $module_name;
     $xtpl = new XTemplate('result.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_file);
     $xtpl->assign('LANG', $lang_module);
@@ -106,7 +107,6 @@ function search_result_theme($result_array, $mod, $mod_custom_title, $search, $i
         $xtpl->assign('RESULT', $result);
         $xtpl->parse('main.result');
     }
-
     $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&q=" . urlencode_rfc_3986($search['key']);
     if ($mod != "all") {
         $base_url .= "&m=" . $mod;

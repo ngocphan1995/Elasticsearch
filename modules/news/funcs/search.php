@@ -11,13 +11,7 @@
 if (! defined('NV_IS_MOD_NEWS')) {
     die('Stop!!!');
 }
-  /*kết nối host*/
-	$hosts = array( $db_config['elas_host'] . ':' . $db_config['elas_port'] );
-	$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
-	/*----------------end----------*/
-	$params = array();
-	$params['index'] = 'mangvn_com';
-	$params['type'] = NV_PREFIXLANG . '_' . $module_data . '_rows';
+
 function GetSourceNews($sourceid)
 {
     global $db_slave, $module_data;
@@ -80,7 +74,6 @@ $date_array['to_date'] = preg_replace('/[^0-9]/', '.', urldecode($to_date));
 if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $date_array['to_date'])) {
     $base_url_rewrite .= '&to_date=' . $date_array['to_date'];
 }
-
 $page = $nv_Request->get_int('page', 'get', 1);
 if (! empty($page)) {
     $base_url_rewrite .= '&page=' . $page;
@@ -101,6 +94,7 @@ foreach ($global_array_cat as $arr_cat_i) {
         'select' => ($arr_cat_i['catid'] == $catid) ? 'selected' : ''
     );
 }
+
 $array_cat_search[0]['title'] = $lang_module['search_all'];
 
 $contents = call_user_func('search_theme', $key, $choose, $date_array, $array_cat_search);
@@ -116,22 +110,154 @@ if (empty($key) and ($catid == 0) and empty($from_date) and empty($to_date)) {
 
 	$dbkey = $db_slave->dblikeescape($key);
 	$dbkeyhtml = $db_slave->dblikeescape($keyhtml);
-	//search keytml
+	/*tim kiem theo elasticsearch*/
+	$hosts = [
+	'10.0.0.124:9200' ];
+	$client = Elasticsearch\ClientBuilder::create()->setHosts($hosts)
+	->setRetries(0)
+	->build();
+	//khai bao
+	$params = [
+    'index' => 'nukeviet4_demo',
+    'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
+    ];
 
-	// Tìm kiếm có 1 trong các từ.
-	//$params['body']['query']['match']['title'] ='NukeViet tuyển dụng';
+	if ($choose == 1) {
+		$search_elastic=[
+		"should"=> [
+              "multi_match" => [//dung multi_match:tim kiem theo nhieu truong
+                "query"=> $dbkeyhtml,//tim kiem theo tu khoa
+                "type"=> ["cross_fields"],
+                "fields"=> [ "title",
+    						"hometext","bodyhtml"],//tim kiem theo 3 trương mặc định là hoặc
+		        "minimum_should_match"=> ["50%"]
+		         ]
+            ],
+          ];
+ }
+		else if($choose==2)
+		{
+			//match:tim kiem theo 1 truong
+		$search_elastic=[
+		"should"=> [
+              'match'=>['author'=>$dbkeyhtml ]
+            ],
+          ];
 
-	// Tìm kiếm có tất cả các từ
-	$params['body']['query']['multi_match']['query'] = 'triển khai';
-	$params['body']['query']['multi_match']['operator'] ='and';
-	$params['body']['query']['multi_match']['fields'] = [
-	"title",
-	"hometext", "bodyhtml"
-	];
+		}
+		else if($choose==3)
+		{
+			$qurl = $key;
+			$url_info = @parse_url($qurl);
+			if (isset($url_info['scheme']) and isset($url_info['host'])) {
+			$qurl = $url_info['scheme'] . '://' . $url_info['host'];
+			}
+			// Tìm kiếm có 1 trong các từ.
+			$search_elastic=[
+				"should"=> [
+              			'match'=>['sourcetext'=>$db_slave->dblikeescape($qurl) ]
+            			],
+          			];
+		}
+		else {
+			//tim  kiem tat ca
 
-	if (empty($key)) {
-	$page_title = $lang_module[
-'search_title'] . ' ' . NV_TITLEBAR_DEFIS . ' ' . $module_info['custom_title'];
+			$search_elastic=[
+			"should"=> [
+              "multi_match" => [//dung multi_match:tim kiem theo nhieu truong
+                "query"=> $dbkeyhtml,//tim kiem theo tu khoa
+                "type"=> ["cross_fields"],
+                "fields"=> [ "title",
+    						"hometext","bodyhtml","sourcetext"],//tim kiem theo 3 trương mặc định là hoặc
+		        "minimum_should_match"=> ["50%"]
+		         ]
+            	],
+          	];
+		}
+			//chu de
+			if( $catid > 0 )
+			{
+				$search_elastic_catid=[
+				"filter"=> [
+	            		"term" => [ "catid" =>$catid],
+	        				]
+				];
+				//$search_elastic=array_merge($search_elastic,$search_elastic_catid);//gop 2 mang vao 1
+			}
+			$params['body']['query']['bool']=$search_elastic;
+			//thoi gian
+
+		  	if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $to_date, $m)) {
+	          $todate_elastic=["lte"=>mktime(23, 59, 59, $m[2], $m[1], $m[3])];
+   		 	}
+    		if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $from_date, $m)) {
+        	$fromdate_elastic=["gte" =>mktime(0, 0, 0, $m[2], $m[1], $m[3])];
+			}
+			//TH1:cả to date và from date đều tồn tại
+			if($date_elastic=array_merge($todate_elastic,$fromdate_elastic))
+			{
+				$params['body']['query']['bool']['must']['range']['publtime']=$date_elastic;
+				$response = $client->search($params);
+			}
+			//trường hợp 2:chỉ tồn tại to date
+			else if($todate_elastic)
+			{
+				$params['body']['query']['bool']['must']['range']['publtime']=$todate_elastic;
+				$response = $client->search($params);
+			}
+			//trường hợp 3:Chỉ tồn tại from date
+			else if($fromdate_elastic)
+			{
+				$params['body']['query']['bool']['must']['range']['publtime']=$fromdate_elastic;
+				$response = $client->search($params);
+			}
+			//trường hợp 4:không tồn tại cả to date và end date
+			else {
+				$response = $client->search($params);
+			}
+			//print_r($params);die('pass');
+		//số bản ghi thu được
+		$numRecord=$response ['hits']['total'];
+		//trả về kết quả
+		foreach ($response ['hits'] ['hits'] as $key => $value) {
+		$homeimgthumb=$value['_source']['homeimgthumb'];
+		if ($homeimgthumb == 1) {
+            // image thumb
+            $img_src = NV_BASE_SITEURL . NV_FILES_DIR . '/' . $module_upload . '/' . $value['_source']['homeimgfile'];
+        } elseif ($homeimgthumb == 2) {
+            // image file
+            $img_src = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $value['_source']['homeimgfile'];
+        } elseif ($homeimgthumb == 3) {
+            // image url
+            $img_src = $value['_source']['homeimgfile'];
+        } elseif (! empty($show_no_image)) {
+            // no image
+            $img_src = NV_BASE_SITEURL . $show_no_image;
+        } else {
+            $img_src = '';
+        }
+        $array_content[] = array(
+            'id' => $value['_source']['id'],
+            'title' =>$value['_source'] ['title'],
+            'alias' => $value['_source']['alias'],
+            'catid' => $value['_source']['catid'],
+            'hometext' => $value['_source']['hometext'],
+            'author' => $value['_source']['author'],
+            'publtime' => $value['_source']['publtime'],
+            'homeimgfile' => $img_src,
+            'sourceid' => $value['_source']['sourceid']
+        );
+
+
+	}
+		//print_r($response ['hits'] ['hits']);
+
+
+    $contents .= search_result_theme($key, $numRecord, $per_page, $page, $array_content, $catid);
+}
+
+if (empty($key)) {
+    $page_title = $lang_module['search_title'] . ' ' . NV_TITLEBAR_DEFIS . ' ' . $module_info['custom_title'];
 } else {
     $page_title = $key . ' ' . NV_TITLEBAR_DEFIS . ' ' . $lang_module['search_title'];
     if ($page > 2) {
