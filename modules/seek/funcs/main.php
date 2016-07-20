@@ -91,15 +91,14 @@ if ($nv_Request->isset_request('q', 'get')) {
             $num_items = 0;
             $result_array = array();
             include NV_ROOTDIR . '/modules/' . $m_values['module_file'] . '/search.php' ;
-
             if (! empty($num_items) and ! empty($result_array)) {
                 $search['content'] .= search_result_theme($result_array, $m_name, $m_values['custom_title'], $search, $is_generate_page, $limit, $num_items);
             }
         }
-
         if (empty($search['content'])) {
             $search['content'] = $lang_module['search_none'] . ' &quot;' . $search['key'] . '&quot;';
         }
+
     }
 }
 
