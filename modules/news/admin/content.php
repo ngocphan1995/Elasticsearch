@@ -608,7 +608,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				$rowcontent = array_merge($rowcontent, $body_contents);
 				$module_data = 'news';
 				$params = [
-				'index' => 'nukeviet4_demo',
+				'index' => $db_config['elas_index'],
 				'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
 				'id' =>0,
 				'body' => []
@@ -709,9 +709,9 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				//Sua trong elasticsearch
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
         		$rowcontent = array_merge($rowcontent, $body_contents);
-				$module_data = 'news';
-				$params = array( );
-				$params['index'] = 'nukeviet4_demo';
+
+        		$params = array( );
+				$params['index'] = $db_config['elas_index'];
 				$params['type'] = NV_PREFIXLANG . '_' . $module_data . '_rows';
 				$params['id'] = $rowcontent['id'];//gan id= id cua rowcontent
 				$params['body']['doc'] = $rowcontent;//gan body=body cua rowcontent phai để dạng này $params['body']['doc'] nó mới cho update

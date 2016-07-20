@@ -28,6 +28,7 @@ $db_config['prefix'] = 'nv4';
 //Cấu hình host elasticsearch
 $db_config['elas_host'] = '10.0.0.124';
 $db_config['elas_port'] = '9200';
+$db_config['elas_index'] = 'nukeviet4_demo';
 
 $global_config['site_domain'] = '';
 $global_config['name_show'] = 0;

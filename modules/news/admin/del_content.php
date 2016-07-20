@@ -68,7 +68,7 @@ if (! empty($del_array)) {
 			$module_data = 'news';
 			/*Xóa dữ liệu trong elasticsearch*/
 			$params = [
-			'index' => 'nukeviet4_demo',
+			'index' => $db_config['elas_index'],
 			'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
 			'id' => $id,
 				];

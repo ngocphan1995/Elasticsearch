@@ -117,19 +117,19 @@ if(isset($db_config['elas_host']))
 	$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
 	/*----------------end----------*/
 	$params = [
-    'index' => 'nukeviet4_demo',
+    'index' => $db_config['elas_index'],
     'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
     ];
 
 	if ($choose == 1) {
 		$search_elastic=[
-		"should"=> [
-              "multi_match" => [//dung multi_match:tim kiem theo nhieu truong
-                "query"=> $dbkeyhtml,//tim kiem theo tu khoa
-                "type"=> ["cross_fields"],
-                "fields"=> [ "title",
-    						"hometext","bodyhtml"],//tim kiem theo 3 trương mặc định là hoặc
-		        "minimum_should_match"=> ["50%"]
+		'should'=> [
+              'multi_match' => [//dung multi_match:tim kiem theo nhieu truong
+                'query'=> $dbkeyhtml,//tim kiem theo tu khoa
+                'type'=> ['cross_fields'],
+                'fields'=> [ 'title',
+    						'hometext','bodyhtml'],//tim kiem theo 3 trương mặc định là hoặc
+		        'minimum_should_match'=> ['50%']
 		         ]
             ],
           ];
@@ -138,7 +138,7 @@ if(isset($db_config['elas_host']))
 		{
 			//match:tim kiem theo 1 truong
 		$search_elastic=[
-		"should"=> [
+		'should'=> [
               'match'=>['author'=>$dbkeyhtml ]
             ],
           ];
@@ -153,7 +153,7 @@ if(isset($db_config['elas_host']))
 			}
 			// Tìm kiếm có 1 trong các từ.
 			$search_elastic=[
-				"should"=> [
+				'should'=> [
               			'match'=>['sourcetext'=>$db_slave->dblikeescape($qurl) ]
             			],
           			];
@@ -162,13 +162,13 @@ if(isset($db_config['elas_host']))
 			//tim  kiem tat ca
 
 			$search_elastic=[
-			"should"=> [
-              "multi_match" => [//dung multi_match:tim kiem theo nhieu truong
-                "query"=> $dbkeyhtml,//tim kiem theo tu khoa
-                "type"=> ["cross_fields"],
-                "fields"=> [ "title",
-    						"hometext","bodyhtml","sourcetext"],//tim kiem theo 3 trương mặc định là hoặc
-		        "minimum_should_match"=> ["50%"]
+			'should'=> [
+              'multi_match' => [//dung multi_match:tim kiem theo nhieu truong
+                'query'=> $dbkeyhtml,//tim kiem theo tu khoa
+                'type'=> ['cross_fields'],
+                'fields'=> [ 'title',
+    						'hometext','bodyhtml','sourcetext'],//tim kiem theo 3 trương mặc định là hoặc
+		        'minimum_should_match'=> ['50%']
 		         ]
             	],
           	];
@@ -177,20 +177,22 @@ if(isset($db_config['elas_host']))
 			if( $catid > 0 )
 			{
 				$search_elastic_catid=[
-				"filter"=> [
-	            		"term" => [ "catid" =>$catid],
+				'filter'=> [
+	            		'term' => [ 'catid' =>$catid],
 	        				]
 				];
 				//$search_elastic=array_merge($search_elastic,$search_elastic_catid);//gop 2 mang vao 1
 			}
 			$params['body']['query']['bool']=$search_elastic;
 			//thoi gian
-
+            
+			$todate_elastic = array();
 		  	if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $to_date, $m)) {
-	          $todate_elastic=["lte"=>mktime(23, 59, 59, $m[2], $m[1], $m[3])];
+	          $todate_elastic=['lte'=>mktime(23, 59, 59, $m[2], $m[1], $m[3])];
    		 	}
-    		if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $from_date, $m)) {
-        	$fromdate_elastic=["gte" =>mktime(0, 0, 0, $m[2], $m[1], $m[3])];
+			$fromdate_elastic = array();
+   		 	if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $from_date, $m)) {
+        	   $fromdate_elastic=['gte' =>mktime(0, 0, 0, $m[2], $m[1], $m[3])];
 			}
 			//TH1:cả to date và from date đều tồn tại
 			if($date_elastic=array_merge($todate_elastic,$fromdate_elastic))
@@ -199,13 +201,13 @@ if(isset($db_config['elas_host']))
 				$response = $client->search($params);
 			}
 			//trường hợp 2:chỉ tồn tại to date
-			else if($todate_elastic)
+			elseif($todate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$todate_elastic;
 				$response = $client->search($params);
 			}
 			//trường hợp 3:Chỉ tồn tại from date
-			else if($fromdate_elastic)
+			elseif($fromdate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$fromdate_elastic;
 				$response = $client->search($params);
@@ -247,11 +249,8 @@ if(isset($db_config['elas_host']))
             'sourceid' => $value['_source']['sourceid']
         );
 
-
 	}
 		//print_r($response ['hits'] ['hits']);
-
-
     $contents .= search_result_theme($key, $numRecord, $per_page, $page, $array_content, $catid);
 }
 else {
