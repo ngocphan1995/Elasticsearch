@@ -11,13 +11,6 @@
 if (! defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
-$hosts = [
-    '10.0.0.124:9200'
-];
-$client = Elasticsearch\ClientBuilder::create()->setHosts($hosts)
-    ->setRetries(0)
-    ->build();
-
 $id = $nv_Request->get_int('id', 'post', 0);
 $checkss = $nv_Request->get_string('checkss', 'post', '');
 $listid = $nv_Request->get_string('listid', 'post', '');
@@ -65,15 +58,6 @@ if (! empty($del_array)) {
            $contents = nv_del_content_module($id);
             $artitle[] = $title;
             $del_array[] = $id;
-			$module_data = 'news';
-			/*Xóa dữ liệu trong elasticsearch*/
-			$params = [
-			'index' => $db_config['elas_index'],
-			'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
-			'id' => $id,
-				];
-				/*Xóa dữ liệu*/
-				$response = $client->delete($params);
 
 				} else {
 				$no_del_array[] = $id;

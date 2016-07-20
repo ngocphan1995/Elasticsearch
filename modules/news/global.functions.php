@@ -127,6 +127,20 @@ function nv_del_content_module($id)
 
         nv_delete_notification(NV_LANG_DATA, $module_name, 'post_queue', $id);
 
+		 /*kết nối host*/
+		if(isset($db_config['elas_host']))  {
+			$hosts = array( $db_config['elas_host'] . ':' . $db_config['elas_port'] );
+			$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
+			/*Xóa dữ liệu trong elasticsearch*/
+			$params = [
+				'index' => $db_config['elas_index'],
+				'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
+				'id' => $id,
+					];
+					/*Xóa dữ liệu*/
+			$response = $client->delete($params);
+		}
+
         if ($number_no_del == 0) {
             $content_del = 'OK_' . $id .'_' . nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name, true);
         } else {

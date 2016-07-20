@@ -12,10 +12,11 @@ if (! defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
   /*kết nối host*/
+  if(isset($db_config['elas_host']))  {
 	$hosts = array( $db_config['elas_host'] . ':' . $db_config['elas_port'] );
 	$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
 	/*----------------end----------*/
-
+  }
 
 if ($nv_Request->isset_request('get_topic_json', 'post, get')) {
     $q = $nv_Request->get_title('q', 'post, get', '');
@@ -602,7 +603,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
                 unset($ct_query);
 
 				//khi ton tai rowcontent id thi moi them vao Thêm vào elasticsearch
-
+			if(isset($db_config['elas_host']))  {
 				/*Thêm vào elasticsearch */
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
 				$rowcontent = array_merge($rowcontent, $body_contents);
@@ -617,12 +618,14 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				$params['id'] = $rowcontent['id'];//gán id=id của rowcontent khi vừa thêm
 				$params['body'] = $rowcontent;//gán body=body của rowcontent
 				$response = $client->index($params);
-
+				}
 				/*------------------end-----------------*/
+
             } else {
                 $error[] = $lang_module['errorsave'];
-            }
-        } else {
+            	}
+        }
+        else {
             $rowcontent_old = $db->query('SELECT * FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows where id=' . $rowcontent['id'])->fetch();
             if ($rowcontent_old['status'] == 1) {
                 $rowcontent['status'] = 1;
@@ -707,6 +710,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
                     $error[] = $lang_module['errorsave'];
                 }
 				//Sua trong elasticsearch
+				if(isset($db_config['elas_host']))  {
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
         		$rowcontent = array_merge($rowcontent, $body_contents);
 
@@ -716,7 +720,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				$params['id'] = $rowcontent['id'];//gan id= id cua rowcontent
 				$params['body']['doc'] = $rowcontent;//gan body=body cua rowcontent phai để dạng này $params['body']['doc'] nó mới cho update
 				$result_search = $client->update( $params );
-
+				}
 			/*------------------------------------------end--------------------------*/
             	//die('test');
 
