@@ -81,7 +81,6 @@ function nv_set_status_module()
     unlink($check_run_cronjobs);
     clearstatcache();
 }
-
 /**
  * nv_del_content_module()
  *
@@ -90,7 +89,7 @@ function nv_set_status_module()
  */
 function nv_del_content_module($id)
 {
-    global $db, $module_name, $module_data, $title, $lang_module;
+    global $db, $module_name, $module_data, $title, $lang_module,$db_config;//khai bao cac bien can dung
     $content_del = 'NO_' . $id;
     $title = '';
     list($id, $listcatid, $title, $homeimgfile) = $db->query('SELECT id, listcatid, title, homeimgfile FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows WHERE id=' . intval($id))->fetch(3);
@@ -119,6 +118,8 @@ function nv_del_content_module($id)
             ++$number_no_del;
         }
 
+
+
         $db->query('DELETE FROM ' . NV_PREFIXLANG . '_comment WHERE module=' . $db->quote($module_name) . ' AND id = ' . $id);
         $db->query('DELETE FROM ' . NV_PREFIXLANG . '_' . $module_data . '_block WHERE id = ' . $id);
 
@@ -127,7 +128,7 @@ function nv_del_content_module($id)
 
         nv_delete_notification(NV_LANG_DATA, $module_name, 'post_queue', $id);
 
-		 /*kết nối host*/
+		/*kết nối host*/
 		if(isset($db_config['elas_host']))  {
 			$hosts = array( $db_config['elas_host'] . ':' . $db_config['elas_port'] );
 			$client = Elasticsearch\ClientBuilder::create( )->setHosts( $hosts )->setRetries( 0 )->build();
@@ -137,7 +138,7 @@ function nv_del_content_module($id)
 				'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
 				'id' => $id,
 					];
-					/*Xóa dữ liệu*/
+			/*Xóa dữ liệu*/
 			$response = $client->delete($params);
 		}
 

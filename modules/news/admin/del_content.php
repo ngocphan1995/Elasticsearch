@@ -58,7 +58,6 @@ if (! empty($del_array)) {
            $contents = nv_del_content_module($id);
             $artitle[] = $title;
             $del_array[] = $id;
-
 				} else {
 				$no_del_array[] = $id;
 				}
