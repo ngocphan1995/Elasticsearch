@@ -11,7 +11,6 @@
 if (! defined('NV_IS_MOD_NEWS')) {
     die('Stop!!!');
 }
-
 function GetSourceNews($sourceid)
 {
     global $db_slave, $module_data;
@@ -120,6 +119,8 @@ if(isset($db_config['elas_host']))
     'index' => $db_config['elas_index'],
     'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
     ];
+	//fix kích thước trang
+	//$per_page=5;
 
 	if ($choose == 1) {
 		$search_elastic=[
@@ -185,7 +186,7 @@ if(isset($db_config['elas_host']))
 			}
 			$params['body']['query']['bool']=$search_elastic;
 			//thoi gian
-            
+
 			$todate_elastic = array();
 		  	if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $to_date, $m)) {
 	          $todate_elastic=['lte'=>mktime(23, 59, 59, $m[2], $m[1], $m[3])];
@@ -198,22 +199,30 @@ if(isset($db_config['elas_host']))
 			if($date_elastic=array_merge($todate_elastic,$fromdate_elastic))
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$date_elastic;
+				$params['body']['size']=$per_page;
+				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 2:chỉ tồn tại to date
 			elseif($todate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$todate_elastic;
+				$params['body']['size']=$per_page;
+				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 3:Chỉ tồn tại from date
 			elseif($fromdate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$fromdate_elastic;
+				$params['body']['size']=$per_page;
+				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 4:không tồn tại cả to date và end date
 			else {
+				$params['body']['size']=$per_page;
+				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//print_r($params);die('pass');
