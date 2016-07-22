@@ -195,34 +195,30 @@ if(isset($db_config['elas_host']))
    		 	if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/', $from_date, $m)) {
         	   $fromdate_elastic=['gte' =>mktime(0, 0, 0, $m[2], $m[1], $m[3])];
 			}
+
+			$params['body']['size']=$per_page;
+			$params['body']['from']=($page - 1) * $per_page;
+				
 			//TH1:cả to date và from date đều tồn tại
 			if($date_elastic=array_merge($todate_elastic,$fromdate_elastic))
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$date_elastic;
-				$params['body']['size']=$per_page;
-				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 2:chỉ tồn tại to date
 			elseif($todate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$todate_elastic;
-				$params['body']['size']=$per_page;
-				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 3:Chỉ tồn tại from date
 			elseif($fromdate_elastic)
 			{
 				$params['body']['query']['bool']['must']['range']['publtime']=$fromdate_elastic;
-				$params['body']['size']=$per_page;
-				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//trường hợp 4:không tồn tại cả to date và end date
 			else {
-				$params['body']['size']=$per_page;
-				$params['body']['from']=($page - 1) * $per_page;
 				$response = $client->search($params);
 			}
 			//print_r($params);die('pass');

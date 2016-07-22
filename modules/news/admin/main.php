@@ -346,8 +346,9 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 				}
 			}
 		$params['body']['query']['bool']=$search_elastic;
+		$params['body']['size']=$per_page;
+		$params['body']['from']=($page - 1) * $per_page;
 		$response = $client->search($params);
-
 
 		//so dong du lieu lay dc,cần sửa $num_items=số dong dữ liệu
 		$num_checkss = md5($num_items . NV_CHECK_SESSION);

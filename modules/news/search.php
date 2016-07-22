@@ -27,23 +27,25 @@ if (isset($db_config['elas_host'])) {
     ];
     // tìm kiếm
     $params['body']['query']['bool'] = [
-        "should" => [
-            "multi_match" => [ // dung multi_match:tim kiem theo nhieu truong
-                "query" => $dbkeyword, // tim kiem theo tu khoa
-                "type" => [
-                    "cross_fields"
+        'should' => [
+            'multi_match' => [ // dung multi_match:tim kiem theo nhieu truong
+                'query' => $dbkeyword, // tim kiem theo tu khoa
+                'type' => [
+                    'cross_fields'
                 ],
-                "fields" => [
-                    "title",
-                    "hometext",
-                    "bodyhtml"
+                'fields' => [
+                    'title',
+                    'hometext',
+                    'bodyhtml'
                 ], // tim kiem theo 3 trương mặc định là hoặc
-                "minimum_should_match" => [
-                    "50%"
+                'minimum_should_match' => [
+                    '50%'
                 ]
             ]
         ]
     ];
+    $params['body']['size']=$limit;
+    $params['body']['from']=($page - 1) * $limit;
     $response = $client->search($params);
     // print_r($response);die('test');
     $num_items = $response['hits']['total'];
