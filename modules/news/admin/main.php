@@ -210,9 +210,11 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 		            ],
 		          ];
 			}
-			elseif ($stype == 'sourcetext') {
+ 		}
+	 elseif($stype == 'sourcetext'){
 		        $qurl = $q;
 		        $url_info = @parse_url($qurl);
+				//print_r($url_info);die('pass');
 		        if (isset($url_info['scheme']) and isset($url_info['host'])) {
 		            $qurl = $url_info['scheme'] . '://' . $url_info['host'];
 		        }
@@ -224,16 +226,16 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 		         ];
 		   	 }
 
-	   	 }
+
 
 		//tìm kiếm theo admin_id
 		elseif ($stype == 'admin_id') {
 
 			//tim tat ca cac admin_id có username=$db_slave->dblikeescape($qhtml) hoặc first_name=$db_slave->dblikeescape($qhtml)
 	    	$db->sqlreset()
-	        ->select('r.admin_id,r.id')
-	        ->from (NV_PREFIXLANG . '_' . $module_data . '_rows r'.' LEFT JOIN ' . NV_USERS_GLOBALTABLE . ' u ON r.admin_id=u.userid')
-	        ->where ('u.username LIKE :q_username OR u.first_name LIKE :q_first_name');
+	        ->select('userid')
+	        ->from (NV_USERS_GLOBALTABLE)
+	        ->where ('username LIKE :q_username OR first_name LIKE :q_first_name');
 
 		    $sth = $db->prepare($db->sql());
 		    $sth->bindValue(':q_username', '%' . $db_slave->dblikeescape($qhtml) . '%', PDO::PARAM_STR);
@@ -243,17 +245,23 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 			//search elastic theo admin_id vừa tìm dc
 			$match = array();
 			while($admin_id_search=$sth->fetch(3))
+				{
+					$match[] = ['match'=>['admin_id'=>$admin_id_search[0]]];
+				}
+			$result = count($match);
+			if($result==0)
 			{
-				$match[] = ['match'=>['id'=>$admin_id_search[1]]];
+					$match[] = ['match'=>['admin_id'=>-1]];
 			}
-			$search_elastic_user['filter']['or']=$match;
+			//print_r($result);die('pass');
 			//gop mang
+			$search_elastic_user['filter']['or']=$match;
 			$search_elastic=array_merge($search_elastic,$search_elastic_user);
 
 		}
 
 		//tìm kiếm tất cả
-	 	elseif (!empty($q)) {
+	 	else{
 			$key_search=$db_slave->dblikeescape($q);
 			$search_elastic=[
 					'should'=> [
@@ -276,9 +284,9 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 			}
 			//tim tat ca cac admin_id có username=$db_slave->dblikeescape($qhtml) hoặc first_name=$db_slave->dblikeescape($qhtml)
 	    	$db->sqlreset()
-	        ->select('r.admin_id,r.id')
-	        ->from (NV_PREFIXLANG . '_' . $module_data . '_rows r'.' LEFT JOIN ' . NV_USERS_GLOBALTABLE . ' u ON r.admin_id=u.userid')
-	        ->where ('u.username LIKE :q_username OR u.first_name LIKE :q_first_name');
+	        ->select('userid')
+	        ->from (NV_USERS_GLOBALTABLE)
+	        ->where ('username LIKE :q_username OR first_name LIKE :q_first_name');
 
 		    $sth = $db->prepare($db->sql());
 		    $sth->bindValue(':q_username', '%' . $db_slave->dblikeescape($qhtml) . '%', PDO::PARAM_STR);
@@ -288,11 +296,17 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 			//search elastic theo admin_id vừa tìm dc
 			$match = array();
 			while($admin_id_search=$sth->fetch(3))
+				{
+					$match[] = ['match'=>['admin_id'=>$admin_id_search[0]]];
+				}
+			$result = count($match);
+			if($result==0)
 			{
-				$match[] = ['match'=>['id'=>$admin_id_search[1]]];
+					$match[] = ['match'=>['admin_id'=>-1]];
 			}
-			$search_elastic_user['filter']['or']=$match;
+			//print_r($result);die('pass');
 			//gop mang
+			$search_elastic_user['filter']['or']=$match;
 			$search_elastic=array_merge($search_elastic,$search_elastic_user);
 
 		}
