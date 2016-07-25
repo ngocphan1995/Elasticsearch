@@ -274,14 +274,6 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 	              ]
 	            ]
             ];
-			if(isset($search_elastic_catid))
-			{
-				$search_elastic=array_merge($search_elastic,$search_elastic_catid);
-			}
-			if(isset($search_elastic_status))
-			{
-				$search_elastic=array_merge($search_elastic,$search_elastic_status);
-			}
 			//tim tat ca cac admin_id có username=$db_slave->dblikeescape($qhtml) hoặc first_name=$db_slave->dblikeescape($qhtml)
 	    	$db->sqlreset()
 	        ->select('userid')
@@ -300,15 +292,11 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 					$match[] = ['match'=>['admin_id'=>$admin_id_search[0]]];
 				}
 			$result = count($match);
-			if($result==0)
+			if($result>0)
 			{
-					$match[] = ['match'=>['admin_id'=>-1]];
+					$search_elastic_user['filter']['or']=$match;
+					$search_elastic=array_merge($search_elastic,$search_elastic_user);
 			}
-			//print_r($result);die('pass');
-			//gop mang
-			$search_elastic_user['filter']['or']=$match;
-			$search_elastic=array_merge($search_elastic,$search_elastic_user);
-
 		}
 
 		//tìm kiếm theo catid
@@ -345,8 +333,8 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 					$search_elastic=$search_elastic_status;
 				}
 			}
-		$params['body']['query']['bool']=$search_elastic;
-		$response = $client->search($params);
+			$params['body']['query']['bool']=$search_elastic;
+			$response = $client->search($params);
 
 
 		//so dong du lieu lay dc,cần sửa $num_items=số dong dữ liệu
