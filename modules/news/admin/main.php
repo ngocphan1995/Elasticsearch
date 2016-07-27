@@ -260,7 +260,7 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 
 		}
 
-		//tìm kiếm tất cả các
+		//tìm kiếm tất cả các trường
 	 	else{
 			$key_search=$db_slave->dblikeescape($q);
 			$search_elastic=[
