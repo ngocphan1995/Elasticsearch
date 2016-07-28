@@ -1021,6 +1021,7 @@ function search_result_theme($key, $numRecord, $per_pages, $page, $array_content
         $xtpl->parse('results.noneresult');
     }
 
+//$per_pages=3;
     if ($numRecord > $per_pages) {
         // show pages
 
@@ -1030,9 +1031,10 @@ function search_result_theme($key, $numRecord, $per_pages, $page, $array_content
         } elseif (strpos($url_link, '?page=') > 0) {
             $url_link = substr($url_link, 0, strpos($url_link, '?page='));
         }
+
         $_array_url = array( 'link' => $url_link, 'amp' => '&page=' );
         $generate_page = nv_generate_page($_array_url, $numRecord, $per_pages, $page);
-
+//print_r($page);die('test');
         $xtpl->assign('VIEW_PAGES', $generate_page);
         $xtpl->parse('results.pages_result');
     }
