@@ -607,6 +607,12 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				/*Thêm vào elasticsearch */
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
 				$rowcontent = array_merge($rowcontent, $body_contents);
+				//thêm trường không dấu
+				$rowcontent['title']=convert_vi_to_en($rowcontent['title']);
+				$rowcontent['bodyhtml']=convert_vi_to_en($rowcontent['bodyhtml']);
+				$rowcontent['author']=convert_vi_to_en($rowcontent['author']);
+				$rowcontent['hometext']=convert_vi_to_en($rowcontent['hometext']);
+				//print_r($rowcontent);die('pass');
 				$module_data = 'news';
 				$params = [
 				'index' => $db_config['elas_index'],
@@ -713,6 +719,11 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 				if(isset($db_config['elas_host']))  {
 				$body_contents = $db_slave->query('SELECT bodyhtml, sourcetext, imgposition, copyright, allowed_send, allowed_print, allowed_save, gid FROM ' . NV_PREFIXLANG . '_' . $module_data . '_detail where id=' . $rowcontent['id'])->fetch();
         		$rowcontent = array_merge($rowcontent, $body_contents);
+				//sửa trường không dấu
+				$rowcontent['title']=convert_vi_to_en($rowcontent['title']);
+				$rowcontent['bodyhtml']=convert_vi_to_en($rowcontent['bodyhtml']);
+				$rowcontent['author']=convert_vi_to_en($rowcontent['author']);
+				$rowcontent['hometext']=convert_vi_to_en($rowcontent['hometext']);
 
         		$params = array( );
 				$params['index'] = $db_config['elas_index'];
