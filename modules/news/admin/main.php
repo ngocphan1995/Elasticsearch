@@ -183,7 +183,7 @@ if(isset($db_config['elas_host'])&&$checkss == NV_CHECK_SESSION)
 
 	$search_elastic=array();
 	//tìm kiếm theo bodytext,author,title
-	$key_elastic_search=$db_slave->dblikeescape($q);
+	$key_elastic_search=convert_vi_to_en($db_slave->dblikeescape($q));
 	if($stype == 'bodytext' or $stype == 'author' or $stype == 'title')
 		{
 		    if ($stype == 'bodytext') {
