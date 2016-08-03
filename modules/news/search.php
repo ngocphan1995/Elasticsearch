@@ -25,6 +25,8 @@ if (isset($db_config['elas_host'])) {
         'index' => $db_config['elas_index'],
         'type' => NV_PREFIXLANG . '_' . $m_values['module_data'] . '_rows'
     ];
+	//bo dau tieng viet
+	$dbkeyword=convert_vi_to_en($dbkeyword);
     // tìm kiếm
     $params['body']['query']['bool'] = [
         'should' => [
@@ -52,14 +54,14 @@ if (isset($db_config['elas_host'])) {
     if ($num_items) {
         $array_cat_alias = array();
         $array_cat_alias[0] = 'other';
-        
+
         $sql_cat = 'SELECT catid, alias FROM ' . NV_PREFIXLANG . '_' . $m_values['module_data'] . '_cat';
         $re_cat = $db_slave->query($sql_cat);
         while (list ($catid, $alias) = $re_cat->fetch(3)) {
             $array_cat_alias[$catid] = $alias;
         }
         $link = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $m_values['module_name'] . '&amp;' . NV_OP_VARIABLE . '=';
-        
+
         foreach ($response['hits']['hits'] as $key => $value) {
             $content = $value['_source']['hometext'] . strip_tags($value['_source']['bodyhtml']);
             $url = $link . $array_cat_alias[$value['_source']['catid']] . '/' . $value['_source']['alias'] . '-' . $value['_source']['id'] . $global_config['rewrite_exturl'];
@@ -76,21 +78,21 @@ if (isset($db_config['elas_host'])) {
         ->from(NV_PREFIXLANG . '_' . $m_values['module_data'] . '_rows r')
         ->join('INNER JOIN ' . NV_PREFIXLANG . '_' . $m_values['module_data'] . '_detail c ON (r.id=c.id)')
         ->where('(' . nv_like_logic('r.title', $dbkeywordhtml, $logic) . ' OR ' . nv_like_logic('r.hometext', $dbkeyword, $logic) . ' OR ' . nv_like_logic('c.bodyhtml', $dbkeyword, $logic) . ')	AND r.status= 1');
-    
+
     $num_items = $db_slave->query($db_slave->sql())
         ->fetchColumn();
-    
+
     if ($num_items) {
         $array_cat_alias = array();
         $array_cat_alias[0] = 'other';
-        
+
         $sql_cat = 'SELECT catid, alias FROM ' . NV_PREFIXLANG . '_' . $m_values['module_data'] . '_cat';
         $re_cat = $db_slave->query($sql_cat);
         while (list ($catid, $alias) = $re_cat->fetch(3)) {
             $array_cat_alias[$catid] = $alias;
         }
         $link = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $m_values['module_name'] . '&amp;' . NV_OP_VARIABLE . '=';
-        
+
         $db_slave->select('r.id, r.title, r.alias, r.catid, r.hometext, c.bodyhtml')
             ->order('publtime DESC')
             ->limit($limit)

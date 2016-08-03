@@ -119,9 +119,7 @@ if(isset($db_config['elas_host']))
     'index' => $db_config['elas_index'],
     'type' => NV_PREFIXLANG . '_' . $module_data . '_rows',
     ];
-	//fix kích thước trang
-	//$per_page=5;
-
+	$dbkeyhtml=convert_vi_to_en($dbkeyhtml);
 	if ($choose == 1) {
 		$search_elastic=[
 		'should'=> [
@@ -147,6 +145,7 @@ if(isset($db_config['elas_host']))
 		}
 		else if($choose==3)
 		{
+			$key=convert_vi_to_en($key);
 			$qurl = $key;
 			$url_info = @parse_url($qurl);
 			if (isset($url_info['scheme']) and isset($url_info['host'])) {
@@ -198,7 +197,7 @@ if(isset($db_config['elas_host']))
 
 			$params['body']['size']=$per_page;
 			$params['body']['from']=($page - 1) * $per_page;
-				
+
 			//TH1:cả to date và from date đều tồn tại
 			if($date_elastic=array_merge($todate_elastic,$fromdate_elastic))
 			{
